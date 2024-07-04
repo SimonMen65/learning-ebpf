@@ -28,15 +28,15 @@ void lost_event(void *ctx, int cpu, long long unsigned int data_sz)
 static int print_latency_mesg(struct disk_latency_bpf *skel){
 
 	int pid =-1, next_pid;
-	struct data_pid_t *m;
+	struct data_pid_t m;
 	int err, fd = bpf_map__fd(skel->maps.disk_latency_map);
 	while (!bpf_map_get_next_key(fd, &pid, &next_pid)){
-		err = bpf_map_lookup_elem(fd, &next_pid, m);
+		err = bpf_map_lookup_elem(fd, &next_pid, &m);
 		if (err < 0) {
 			fprintf(stderr, "failed to lookup latency: %d\n", err);
 			return -1;
 		}
-		printf("pid: %d \t command:%s \t latency:%lld", next_pid,m->command, m->latency);
+		printf("pid: %d \t command:%s \t latency:%lld", next_pid,m.command, m.latency);
 		printf("\n");
 		pid = next_pid;
 	}
