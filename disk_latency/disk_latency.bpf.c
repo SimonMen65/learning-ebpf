@@ -19,7 +19,7 @@ struct {
     __uint(type, BPF_MAP_TYPE_HASH);
     __uint(max_entries, 1024);
     __type(key, u32);
-    __type(value, u64);
+    __type(value, data_pid_t);
 } disk_latency_map SEC(".maps");
 
 SEC("kprobe/vfs_read")
@@ -46,19 +46,19 @@ int BPF_KRETPROBE(kretprobe_vfs_read){
    if (!start_time){
       return 0;
    }
-   u64 delta = (u64)(ts - *start_time);
+   data.latency = (u64)(ts - *start_time);
 
-   if (start_time != 0) {
-      bpf_probe_read_kernel_str(&data.message, sizeof(data.message), messageFD);
-      bpf_map_delete_elem(&pid_start_time_map, &pid);
-      data.latency = ts;
-   } else {
-      bpf_probe_read_kernel_str(&data.message, sizeof(data.message), messageD); 
-      data.latency = ts;
-   }
+//    if (start_time != 0) {
+//       bpf_probe_read_kernel_str(&data.message, sizeof(data.message), messageFD);
+//       bpf_map_delete_elem(&pid_start_time_map, &pid);
+//       data.latency = ts;
+//    } else {
+//       bpf_probe_read_kernel_str(&data.message, sizeof(data.message), messageD); 
+//       data.latency = ts;
+//    }
 
 
-   bpf_map_update_elem(&disk_latency_map, &pid, &delta, BPF_ANY);
+   bpf_map_update_elem(&disk_latency_map, &pid, &data, BPF_ANY);
 
 //    bpf_perf_event_output(ctx, &output, BPF_F_CURRENT_CPU, &data, sizeof(data));   
    return 0;
