@@ -19,7 +19,7 @@ struct {
     __uint(type, BPF_MAP_TYPE_HASH);
     __uint(max_entries, 1024);
     __type(key, u32);
-    __type(value, data_pid_t);
+    __type(value, struct data_pid_t);
 } disk_latency_map SEC(".maps");
 
 SEC("kprobe/vfs_read")
