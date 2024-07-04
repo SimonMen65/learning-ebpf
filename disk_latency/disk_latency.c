@@ -13,18 +13,6 @@ static int libbpf_print_fn(enum libbpf_print_level level, const char *format, va
 	return vfprintf(stderr, format, args);
 }
 
-void handle_event(void *ctx, int cpu, void *data, unsigned int data_sz)
-{
-	struct data_pid_t *m = data;
-
-	printf("%-6d %-6d %-16s %-16s %-6lld\n", m->pid, m->uid, m->command, m->message, m->latency);
-}
-
-void lost_event(void *ctx, int cpu, long long unsigned int data_sz)
-{
-	printf("lost event\n");
-}
-
 static int print_latency_mesg(struct disk_latency_bpf *skel){
 
 	int pid =-1, next_pid;
@@ -73,14 +61,6 @@ int main()
 		disk_latency_bpf__destroy(skel);
         return 1;
 	}
-
-	// pb = perf_buffer__new(bpf_map__fd(skel->maps.output), 8, handle_event, lost_event, NULL, NULL);
-	// if (!pb) {
-	// 	err = -1;
-	// 	fprintf(stderr, "Failed to create ring buffer\n");
-	// 	disk_latency_bpf__destroy(skel);
-    //     return 1;
-	// }
 
 	while (1){
 		sleep(0.8);
